@@ -311,7 +311,7 @@ async function loadAllRecordings() {
 async function saveRecording(storyId, audioBlob, duration) {
   document.getElementById('loading').style.display = 'flex';
   try {
-    const filename = `${currentUser}_story${storyId}_${Date.now()}.webm`;
+    const filename = `student_${storyId}_${Date.now()}_${Math.random().toString(36).slice(2,7)}.webm`;
     const { data: upData, error: upErr } = await sb.storage.from('audio-files').upload(filename, audioBlob, {contentType:'audio/webm'});
     if (upErr) throw upErr;
     const { data: urlData } = sb.storage.from('audio-files').getPublicUrl(filename);
