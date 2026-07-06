@@ -7,182 +7,155 @@
 <script src="https://cdn.jsdelivr.net/npm/@supabase/supabase-js@2"></script>
 <link href="https://fonts.googleapis.com/css2?family=Kanit:wght@400;500;600&display=swap" rel="stylesheet">
 <style>
-  /* ===== ใส่ค่า Supabase ของคุณที่นี่ ===== */
-  /* แก้ใน <script> ด้านล่างที่บรรทัด SUPABASE_URL และ SUPABASE_KEY */
-
-  *{box-sizing:border-box;margin:0;padding:0}
-  body{font-family:'Kanit',sans-serif;background:#fff9f0;min-height:100vh;color:#333}
-
-  /* ===== LOGIN SCREEN ===== */
-  #login-screen{min-height:100vh;display:flex;align-items:center;justify-content:center;background:linear-gradient(135deg,#ff6b9d22,#ffd16622,#4dabf722)}
-  .login-card{background:white;border-radius:24px;padding:2.5rem 2rem;max-width:360px;width:100%;box-shadow:0 8px 40px rgba(0,0,0,0.1);text-align:center}
-  .login-card .mic{font-size:3.5rem;display:block;margin-bottom:0.75rem}
-  .login-card h1{font-size:1.6rem;font-weight:600;color:#ff6b9d;margin-bottom:0.25rem}
-  .login-card p{font-size:0.9rem;color:#888;margin-bottom:1.5rem}
-  .login-card input{width:100%;padding:0.8rem 1rem;border:1.5px solid #e0e0e0;border-radius:12px;font-family:'Kanit',sans-serif;font-size:1rem;margin-bottom:0.75rem;outline:none;transition:border-color 0.2s}
-  .login-card input:focus{border-color:#ff6b9d}
-  .login-card select{width:100%;padding:0.8rem 1rem;border:1.5px solid #e0e0e0;border-radius:12px;font-family:'Kanit',sans-serif;font-size:1rem;margin-bottom:1rem;outline:none;background:white}
-  .btn-login{width:100%;padding:0.9rem;border-radius:12px;border:none;background:linear-gradient(135deg,#ff6b9d,#ff8c42);color:white;font-family:'Kanit',sans-serif;font-size:1rem;font-weight:600;cursor:pointer;transition:opacity 0.2s}
-  .btn-login:hover{opacity:0.9}
-  .btn-teacher{background:linear-gradient(135deg,#4dabf7,#74c0fc)}
-  .login-tabs{display:flex;margin-bottom:1.25rem;border:1.5px solid #eee;border-radius:10px;overflow:hidden}
-  .login-tab{flex:1;padding:0.6rem;font-family:'Kanit',sans-serif;font-size:0.9rem;border:none;background:white;cursor:pointer;color:#888;transition:all 0.2s}
-  .login-tab.active{background:linear-gradient(135deg,#ff6b9d,#ff8c42);color:white;font-weight:600}
-
-  /* ===== MAIN APP ===== */
-  #app{display:none}
-  .header{background:linear-gradient(135deg,#ff6b9d,#ff8c42,#ffd166);padding:1.5rem 1.25rem 2.5rem;text-align:center;border-radius:0 0 32px 32px;position:relative}
-  .header h1{font-size:1.8rem;font-weight:600;color:white}
-  .header p{color:rgba(255,255,255,0.85);font-size:0.9rem;margin-top:0.25rem}
-  .user-pill{display:inline-flex;align-items:center;gap:6px;background:rgba(255,255,255,0.25);color:white;padding:4px 14px;border-radius:20px;font-size:0.8rem;margin-top:0.75rem}
-  .btn-logout{background:none;border:1.5px solid rgba(255,255,255,0.5);color:white;border-radius:8px;padding:3px 10px;font-family:'Kanit',sans-serif;font-size:0.75rem;cursor:pointer;margin-left:8px}
-
-  .stats-bar{display:grid;grid-template-columns:repeat(3,1fr);gap:10px;margin:-1.25rem 1rem 0;position:relative;z-index:10}
-  .stat-card{background:white;border-radius:14px;padding:0.9rem 0.5rem;text-align:center;box-shadow:0 4px 16px rgba(0,0,0,0.08)}
-  .stat-num{font-size:1.6rem;font-weight:600}
-  .stat-num.pink{color:#ff6b9d}.stat-num.orange{color:#ff8c42}.stat-num.blue{color:#4dabf7}
-  .stat-lbl{font-size:0.7rem;color:#999;margin-top:2px}
-
-  .progress-wrap{padding:1rem 1.25rem 0}
-  .progress-hdr{display:flex;justify-content:space-between;font-size:0.82rem;color:#777;margin-bottom:5px}
-  .progress-bar{background:#f0f0f0;border-radius:20px;height:10px;overflow:hidden}
-  .progress-fill{height:100%;background:linear-gradient(90deg,#ff6b9d,#ffd166);border-radius:20px;transition:width 0.5s}
-
-  .filter-row{display:flex;gap:7px;padding:1rem 1.25rem 0.5rem;overflow-x:auto;scrollbar-width:none}
-  .filter-row::-webkit-scrollbar{display:none}
-  .chip{padding:5px 12px;border-radius:20px;border:1.5px solid #e0e0e0;background:white;font-family:'Kanit',sans-serif;font-size:0.78rem;cursor:pointer;white-space:nowrap;transition:all 0.2s;color:#666}
-  .chip.active{border-color:#ff6b9d;background:#ff6b9d;color:white}
-
-  .section-title{font-size:1rem;font-weight:600;color:#555;padding:0.75rem 1.25rem 0.5rem;display:flex;align-items:center;gap:6px}
-  .grid{display:grid;grid-template-columns:repeat(2,1fr);gap:10px;padding:0 1rem 1rem}
-  .card{background:white;border-radius:18px;padding:1rem;cursor:pointer;transition:all 0.2s;border:2px solid transparent;position:relative}
-  .card:hover{transform:translateY(-2px);box-shadow:0 6px 20px rgba(0,0,0,0.08)}
-  .card.done{border-color:#51cf66;background:linear-gradient(135deg,#f0fff4,#e8fff0)}
-  .card-emoji{font-size:1.8rem;display:block;margin-bottom:0.4rem}
-  .card-title{font-size:0.85rem;font-weight:600;color:#333;line-height:1.3}
-  .level-badge{display:inline-block;font-size:0.68rem;padding:2px 7px;border-radius:12px;margin-top:4px;font-weight:500}
-  .l1{background:#d3f9d8;color:#2b7d3b}.l2{background:#fff3bf;color:#7d6000}
-  .l3{background:#ffd8e4;color:#8b1a4a}.l4{background:#d0ebff;color:#1864ab}
-  .card-badge{position:absolute;top:9px;right:9px;background:#51cf66;color:white;font-size:0.62rem;padding:2px 7px;border-radius:10px;font-weight:600}
-
-  /* ===== TEACHER VIEW ===== */
-  .teacher-panel{padding:0 1rem 2rem}
-  .table-wrap{overflow-x:auto;border-radius:14px;box-shadow:0 4px 16px rgba(0,0,0,0.06)}
-  table{width:100%;border-collapse:collapse;background:white;font-size:0.78rem}
-  th{background:linear-gradient(135deg,#ff6b9d,#ff8c42);color:white;padding:8px 5px;text-align:center;font-weight:600;white-space:nowrap}
-  td{padding:6px 4px;text-align:center;border-bottom:1px solid #f5f5f5;color:#555}
-  tr:last-child td{border-bottom:none}
-  tr:hover td{background:#fff9f0}
-  .score-g{background:#d3f9d8;color:#2b7d3b;border-radius:8px;padding:2px 6px;font-weight:600;font-size:0.75rem}
-  .score-y{background:#fff3bf;color:#7d6000;border-radius:8px;padding:2px 6px;font-weight:600;font-size:0.75rem}
-  .score-r{background:#ffe0e0;color:#c00;border-radius:8px;padding:2px 6px;font-weight:600;font-size:0.75rem}
-
-  /* ===== MODAL ===== */
-  .overlay{position:fixed;inset:0;background:rgba(0,0,0,0.5);display:none;align-items:flex-end;justify-content:center;z-index:100}
-  .overlay.open{display:flex}
-  .modal{background:white;border-radius:24px 24px 0 0;padding:1.5rem;width:100%;max-width:480px;max-height:92vh;overflow-y:auto}
-  .modal-handle{width:36px;height:4px;background:#e0e0e0;border-radius:4px;margin:0 auto 1rem}
-  .modal-emoji{font-size:2.5rem;text-align:center;display:block;margin-bottom:0.4rem}
-  .modal-title{font-size:1.2rem;font-weight:600;text-align:center;color:#333}
-  .modal-level{text-align:center;margin:0.4rem 0 0.9rem}
-  .story-text{background:#f8f9fa;border-radius:12px;padding:1rem;font-size:0.87rem;line-height:1.9;color:#444;border-left:4px solid #ff6b9d;margin-bottom:1rem}
-  .story-text p{margin-bottom:0.35rem}
-
-  .rec-section{background:linear-gradient(135deg,#fff9f0,#fff0f8);border-radius:14px;padding:1rem;margin-bottom:1rem}
-  .rec-title{font-size:0.83rem;font-weight:600;color:#666;margin-bottom:0.75rem;display:flex;align-items:center;gap:5px}
-  .timer{font-size:1.4rem;font-weight:600;color:#ff4444;text-align:center;height:2rem;display:flex;align-items:center;justify-content:center}
-  .attempts{display:flex;flex-direction:column;gap:7px;margin-bottom:0.75rem;min-height:30px}
-  .attempt-row{display:flex;align-items:center;gap:7px;background:white;border-radius:10px;padding:7px 10px;box-shadow:0 2px 6px rgba(0,0,0,0.05)}
-  .attempt-num{font-size:0.72rem;color:#999;min-width:48px}
-  .play-btn{width:30px;height:30px;border-radius:50%;background:#ff6b9d;border:none;cursor:pointer;color:white;font-size:0.65rem;flex-shrink:0;transition:transform 0.1s}
-  .play-btn:hover{transform:scale(1.1)}
-  .waveform{flex:1;height:22px;display:flex;align-items:center;gap:2px;overflow:hidden}
-  .wbar{background:linear-gradient(#ff6b9d,#ffd166);border-radius:2px;width:3px;flex-shrink:0;opacity:0.6}
-  .attempt-date{font-size:0.68rem;color:#bbb;min-width:48px;text-align:right}
-  .del-btn{background:none;border:none;color:#ccc;cursor:pointer;font-size:0.85rem;line-height:1;padding:2px 4px}
-  .del-btn:hover{color:#ff6b9d}
-  .no-rec{font-size:0.78rem;color:#bbb;text-align:center;padding:0.4rem}
-
-  .record-btn{width:100%;padding:0.85rem;border-radius:14px;border:none;font-family:'Kanit',sans-serif;font-size:0.95rem;font-weight:600;cursor:pointer;display:flex;align-items:center;justify-content:center;gap:7px;transition:all 0.2s}
-  .record-btn.idle{background:linear-gradient(135deg,#ff6b9d,#ff8c42);color:white}
-  .record-btn.recording{background:linear-gradient(135deg,#ff4444,#ff6b9d);color:white;animation:rpulse 1s infinite}
-  @keyframes rpulse{0%,100%{opacity:1}50%{opacity:0.8}}
-  .done-row{display:flex;align-items:center;gap:8px;background:#f0fff4;border-radius:10px;padding:0.7rem 1rem;margin-bottom:1rem}
-  .close-btn{width:100%;padding:0.7rem;border-radius:12px;border:1.5px solid #e0e0e0;background:white;font-family:'Kanit',sans-serif;font-size:0.9rem;color:#666;cursor:pointer}
-  .loading-overlay{position:fixed;inset:0;background:rgba(255,255,255,0.8);display:flex;align-items:center;justify-content:center;z-index:200;font-size:1rem;color:#ff6b9d;font-weight:600;display:none}
-  .toast{position:fixed;bottom:20px;left:50%;transform:translateX(-50%);background:#333;color:white;padding:10px 20px;border-radius:12px;font-size:0.85rem;z-index:300;opacity:0;transition:opacity 0.3s;pointer-events:none}
-  .toast.show{opacity:1}
+*{box-sizing:border-box;margin:0;padding:0}
+body{font-family:'Kanit',sans-serif;background:#fff9f0;min-height:100vh;color:#333}
+#login-screen{min-height:100vh;display:flex;align-items:center;justify-content:center;background:linear-gradient(135deg,#ff6b9d22,#ffd16622,#4dabf722)}
+.login-card{background:white;border-radius:24px;padding:2.5rem 2rem;max-width:360px;width:100%;box-shadow:0 8px 40px rgba(0,0,0,0.1);text-align:center}
+.login-card .mic{font-size:3.5rem;display:block;margin-bottom:0.75rem}
+.login-card h1{font-size:1.6rem;font-weight:600;color:#ff6b9d;margin-bottom:0.25rem}
+.login-card p{font-size:0.9rem;color:#888;margin-bottom:1.5rem}
+.login-card input{width:100%;padding:0.8rem 1rem;border:1.5px solid #e0e0e0;border-radius:12px;font-family:'Kanit',sans-serif;font-size:1rem;margin-bottom:0.75rem;outline:none;transition:border-color 0.2s}
+.login-card input:focus{border-color:#ff6b9d}
+.btn-login{width:100%;padding:0.9rem;border-radius:12px;border:none;background:linear-gradient(135deg,#ff6b9d,#ff8c42);color:white;font-family:'Kanit',sans-serif;font-size:1rem;font-weight:600;cursor:pointer;transition:opacity 0.2s}
+.btn-login:hover{opacity:0.9}
+.btn-teacher{background:linear-gradient(135deg,#4dabf7,#74c0fc)!important}
+.login-tabs{display:flex;margin-bottom:1.25rem;border:1.5px solid #eee;border-radius:10px;overflow:hidden}
+.login-tab{flex:1;padding:0.6rem;font-family:'Kanit',sans-serif;font-size:0.9rem;border:none;background:white;cursor:pointer;color:#888;transition:all 0.2s}
+.login-tab.active{background:linear-gradient(135deg,#ff6b9d,#ff8c42);color:white;font-weight:600}
+#app{display:none}
+.header{background:linear-gradient(135deg,#ff6b9d,#ff8c42,#ffd166);padding:1.5rem 1.25rem 2.5rem;text-align:center;border-radius:0 0 32px 32px}
+.header h1{font-size:1.8rem;font-weight:600;color:white}
+.header p{color:rgba(255,255,255,0.85);font-size:0.9rem;margin-top:0.25rem}
+.user-pill{display:inline-flex;align-items:center;gap:6px;background:rgba(255,255,255,0.25);color:white;padding:4px 14px;border-radius:20px;font-size:0.8rem;margin-top:0.75rem}
+.btn-logout{background:none;border:1.5px solid rgba(255,255,255,0.5);color:white;border-radius:8px;padding:3px 10px;font-family:'Kanit',sans-serif;font-size:0.75rem;cursor:pointer;margin-left:8px}
+.stats-bar{display:grid;grid-template-columns:repeat(3,1fr);gap:10px;margin:-1.25rem 1rem 0;position:relative;z-index:10}
+.stat-card{background:white;border-radius:14px;padding:0.9rem 0.5rem;text-align:center;box-shadow:0 4px 16px rgba(0,0,0,0.08)}
+.stat-num{font-size:1.6rem;font-weight:600}
+.stat-num.pink{color:#ff6b9d}.stat-num.orange{color:#ff8c42}.stat-num.blue{color:#4dabf7}
+.stat-lbl{font-size:0.7rem;color:#999;margin-top:2px}
+.progress-wrap{padding:1rem 1.25rem 0}
+.progress-hdr{display:flex;justify-content:space-between;font-size:0.82rem;color:#777;margin-bottom:5px}
+.progress-bar{background:#f0f0f0;border-radius:20px;height:10px;overflow:hidden}
+.progress-fill{height:100%;background:linear-gradient(90deg,#ff6b9d,#ffd166);border-radius:20px;transition:width 0.5s}
+.filter-row{display:flex;gap:7px;padding:1rem 1.25rem 0.5rem;overflow-x:auto;scrollbar-width:none}
+.filter-row::-webkit-scrollbar{display:none}
+.chip{padding:5px 12px;border-radius:20px;border:1.5px solid #e0e0e0;background:white;font-family:'Kanit',sans-serif;font-size:0.78rem;cursor:pointer;white-space:nowrap;transition:all 0.2s;color:#666}
+.chip.active{border-color:#ff6b9d;background:#ff6b9d;color:white}
+.section-title{font-size:1rem;font-weight:600;color:#555;padding:0.75rem 1.25rem 0.5rem}
+.grid{display:grid;grid-template-columns:repeat(2,1fr);gap:10px;padding:0 1rem 1rem}
+.card{background:white;border-radius:18px;padding:1rem;cursor:pointer;transition:all 0.2s;border:2px solid transparent;position:relative}
+.card:hover{transform:translateY(-2px);box-shadow:0 6px 20px rgba(0,0,0,0.08)}
+.card.done{border-color:#51cf66;background:linear-gradient(135deg,#f0fff4,#e8fff0)}
+.card-emoji{font-size:1.8rem;display:block;margin-bottom:0.4rem}
+.card-title{font-size:0.85rem;font-weight:600;color:#333;line-height:1.3}
+.level-badge{display:inline-block;font-size:0.68rem;padding:2px 7px;border-radius:12px;margin-top:4px;font-weight:500}
+.l1{background:#d3f9d8;color:#2b7d3b}.l2{background:#fff3bf;color:#7d6000}
+.l3{background:#ffd8e4;color:#8b1a4a}.l4{background:#d0ebff;color:#1864ab}
+.card-badge{position:absolute;top:9px;right:9px;background:#51cf66;color:white;font-size:0.62rem;padding:2px 7px;border-radius:10px;font-weight:600}
+.teacher-panel{padding:0 1rem 2rem}
+.table-wrap{overflow-x:auto;border-radius:14px;box-shadow:0 4px 16px rgba(0,0,0,0.06)}
+table{width:100%;border-collapse:collapse;background:white;font-size:0.78rem}
+th{background:linear-gradient(135deg,#ff6b9d,#ff8c42);color:white;padding:8px 5px;text-align:center;font-weight:600;white-space:nowrap}
+td{padding:6px 4px;text-align:center;border-bottom:1px solid #f5f5f5;color:#555}
+tr:last-child td{border-bottom:none}
+tr:hover td{background:#fff9f0}
+.score-g{background:#d3f9d8;color:#2b7d3b;border-radius:8px;padding:2px 6px;font-weight:600;font-size:0.75rem}
+.score-y{background:#fff3bf;color:#7d6000;border-radius:8px;padding:2px 6px;font-weight:600;font-size:0.75rem}
+.score-r{background:#ffe0e0;color:#c00;border-radius:8px;padding:2px 6px;font-weight:600;font-size:0.75rem}
+.overlay{position:fixed;inset:0;background:rgba(0,0,0,0.5);display:none;align-items:flex-end;justify-content:center;z-index:100}
+.overlay.open{display:flex}
+.modal{background:white;border-radius:24px 24px 0 0;padding:1.5rem;width:100%;max-width:480px;max-height:92vh;overflow-y:auto}
+.modal-handle{width:36px;height:4px;background:#e0e0e0;border-radius:4px;margin:0 auto 1rem}
+.modal-emoji{font-size:2.5rem;text-align:center;display:block;margin-bottom:0.4rem}
+.modal-title{font-size:1.2rem;font-weight:600;text-align:center;color:#333}
+.modal-level{text-align:center;margin:0.4rem 0 0.9rem}
+.story-text{background:#f8f9fa;border-radius:12px;padding:1rem;font-size:0.87rem;line-height:1.9;color:#444;border-left:4px solid #ff6b9d;margin-bottom:1rem}
+.story-text p{margin-bottom:0.35rem}
+.rec-section{background:linear-gradient(135deg,#fff9f0,#fff0f8);border-radius:14px;padding:1rem;margin-bottom:1rem}
+.rec-title{font-size:0.83rem;font-weight:600;color:#666;margin-bottom:0.75rem}
+.timer{font-size:1.4rem;font-weight:600;color:#ff4444;text-align:center;height:2rem;display:flex;align-items:center;justify-content:center}
+.attempts{display:flex;flex-direction:column;gap:7px;margin-bottom:0.75rem;min-height:30px}
+.attempt-row{display:flex;align-items:center;gap:7px;background:white;border-radius:10px;padding:7px 10px;box-shadow:0 2px 6px rgba(0,0,0,0.05)}
+.attempt-num{font-size:0.72rem;color:#999;min-width:48px}
+.play-btn{width:30px;height:30px;border-radius:50%;background:#ff6b9d;border:none;cursor:pointer;color:white;font-size:0.65rem;flex-shrink:0}
+.waveform{flex:1;height:22px;display:flex;align-items:center;gap:2px;overflow:hidden}
+.wbar{background:linear-gradient(#ff6b9d,#ffd166);border-radius:2px;width:3px;flex-shrink:0;opacity:0.6}
+.attempt-date{font-size:0.68rem;color:#bbb;min-width:48px;text-align:right}
+.del-btn{background:none;border:none;color:#ccc;cursor:pointer;font-size:0.85rem;line-height:1;padding:2px 4px}
+.del-btn:hover{color:#ff6b9d}
+.no-rec{font-size:0.78rem;color:#bbb;text-align:center;padding:0.4rem}
+.record-btn{width:100%;padding:0.85rem;border-radius:14px;border:none;font-family:'Kanit',sans-serif;font-size:0.95rem;font-weight:600;cursor:pointer;display:flex;align-items:center;justify-content:center;gap:7px;transition:all 0.2s}
+.record-btn.idle{background:linear-gradient(135deg,#ff6b9d,#ff8c42);color:white}
+.record-btn.recording{background:linear-gradient(135deg,#ff4444,#ff6b9d);color:white;animation:rpulse 1s infinite}
+@keyframes rpulse{0%,100%{opacity:1}50%{opacity:0.8}}
+.done-row{display:flex;align-items:center;gap:8px;background:#f0fff4;border-radius:10px;padding:0.7rem 1rem;margin-bottom:1rem}
+.close-btn{width:100%;padding:0.7rem;border-radius:12px;border:1.5px solid #e0e0e0;background:white;font-family:'Kanit',sans-serif;font-size:0.9rem;color:#666;cursor:pointer}
+.loading-overlay{position:fixed;inset:0;background:rgba(255,255,255,0.85);display:none;align-items:center;justify-content:center;z-index:200;font-size:1rem;color:#ff6b9d;font-weight:600;flex-direction:column;gap:12px}
+.spinner{width:36px;height:36px;border:3px solid #ffd166;border-top-color:#ff6b9d;border-radius:50%;animation:spin 0.8s linear infinite}
+@keyframes spin{to{transform:rotate(360deg)}}
+.toast{position:fixed;bottom:20px;left:50%;transform:translateX(-50%);background:#333;color:white;padding:10px 20px;border-radius:12px;font-size:0.85rem;z-index:300;opacity:0;transition:opacity 0.3s;pointer-events:none;white-space:nowrap}
+.toast.show{opacity:1}
 </style>
 </head>
 <body>
 
-<!-- LOGIN -->
 <div id="login-screen">
   <div class="login-card">
     <span class="mic">🎙️</span>
     <h1>ฉันอ่านได้</h1>
     <p>My Reading Podcast — ป.5</p>
     <div class="login-tabs">
-      <button class="login-tab active" onclick="setRole('student')">🎒 นักเรียน</button>
-      <button class="login-tab" onclick="setRole('teacher')">📋 ครู</button>
+      <button class="login-tab active" id="tab-student" onclick="setRole('student')">🎒 นักเรียน</button>
+      <button class="login-tab" id="tab-teacher" onclick="setRole('teacher')">📋 ครู</button>
     </div>
     <input type="text" id="name-input" placeholder="พิมพ์ชื่อของคุณ" maxlength="30">
     <div id="teacher-pass-wrap" style="display:none">
-      <input type="password" id="teacher-pass" placeholder="รหัสครู (ตั้งเองได้)">
+      <input type="password" id="teacher-pass" placeholder="รหัสครู">
     </div>
     <button class="btn-login" id="login-btn" onclick="doLogin()">เข้าสู่ระบบ ▶</button>
   </div>
 </div>
 
-<!-- APP -->
 <div id="app">
   <div class="header">
     <h1>🎙️ ฉันอ่านได้</h1>
     <p>My Reading Podcast — ป.5</p>
     <div>
-      <span class="user-pill" id="user-pill">👤 กำลังโหลด</span>
+      <span class="user-pill" id="user-pill">👤</span>
       <button class="btn-logout" onclick="logout()">ออก</button>
     </div>
   </div>
-
   <div class="stats-bar">
     <div class="stat-card"><div class="stat-num pink" id="s-total">0</div><div class="stat-lbl">บันทึกทั้งหมด</div></div>
     <div class="stat-card"><div class="stat-num orange" id="s-done">0</div><div class="stat-lbl">บทที่อ่านแล้ว</div></div>
     <div class="stat-card"><div class="stat-num blue" id="s-pct">0%</div><div class="stat-lbl">ความก้าวหน้า</div></div>
   </div>
-
   <div class="progress-wrap">
     <div class="progress-hdr"><span>ความคืบหน้า</span><span id="p-text">0 / 15 บท</span></div>
     <div class="progress-bar"><div class="progress-fill" id="p-fill" style="width:0%"></div></div>
   </div>
-
-  <!-- STUDENT VIEW -->
   <div id="student-view">
     <div class="filter-row">
-      <button class="chip active" onclick="filter('all',this)">ทั้งหมด</button>
-      <button class="chip" onclick="filter('1',this)">⭐ ระดับ 1</button>
-      <button class="chip" onclick="filter('2',this)">⭐⭐ ระดับ 2</button>
-      <button class="chip" onclick="filter('3',this)">⭐⭐⭐ ระดับ 3</button>
-      <button class="chip" onclick="filter('4',this)">⭐⭐⭐⭐ ระดับ 4</button>
-      <button class="chip" onclick="filter('done',this)">✅ อ่านแล้ว</button>
+      <button class="chip active" onclick="doFilter('all',this)">ทั้งหมด</button>
+      <button class="chip" onclick="doFilter('1',this)">⭐ ระดับ 1</button>
+      <button class="chip" onclick="doFilter('2',this)">⭐⭐ ระดับ 2</button>
+      <button class="chip" onclick="doFilter('3',this)">⭐⭐⭐ ระดับ 3</button>
+      <button class="chip" onclick="doFilter('4',this)">⭐⭐⭐⭐ ระดับ 4</button>
+      <button class="chip" onclick="doFilter('done',this)">✅ อ่านแล้ว</button>
     </div>
     <div class="section-title">📚 บทอ่าน 15 บท</div>
     <div class="grid" id="story-grid"></div>
   </div>
-
-  <!-- TEACHER VIEW -->
   <div id="teacher-view" style="display:none">
-    <div class="section-title">📊 ตารางติดตามนักเรียนทุกคน</div>
+    <div class="section-title">📊 ตารางติดตามนักเรียน</div>
     <div class="teacher-panel">
-      <div class="table-wrap"><table id="teacher-table">
-        <thead><tr id="t-head"></tr></thead>
-        <tbody id="t-body"></tbody>
-      </table></div>
+      <div class="table-wrap">
+        <table><thead><tr id="t-head"></tr></thead><tbody id="t-body"></tbody></table>
+      </div>
     </div>
   </div>
 </div>
 
-<!-- MODAL -->
 <div class="overlay" id="overlay" onclick="handleOverlay(event)">
   <div class="modal" id="modal">
     <div class="modal-handle"></div>
@@ -205,24 +178,23 @@
   </div>
 </div>
 
-<div class="loading-overlay" id="loading">⏳ กำลังบันทึก...</div>
+<div class="loading-overlay" id="loading">
+  <div class="spinner"></div>
+  <span>กำลังบันทึก...</span>
+</div>
 <div class="toast" id="toast"></div>
 
 <script>
-// ===== ตั้งค่า Supabase =====
-const SUPABASE_URL = 'https://fjuzaymqeboghltrsesa.supabase.co';
-const SUPABASE_KEY = eyJhbGciOiJIUzI1NiIsInR5cCI6IkpXVCJ9.eyJpc3MiOiJzdXBhYmFzZSIsInJlZiI6ImZqdXpheW1xZWJvZ2hsdHJzZXNhIiwicm9sZSI6InNlcnZpY2Vfcm9sZSIsImlhdCI6MTc4MjQ1NDI3MSwiZXhwIjoyMDk4MDMwMjcxfQ.t5VWObxWl-XVPQU4rq3zWspU5qQjkK_bAkbbYTC0oZw
-const TEACHER_PASSWORD = 'teacher2567'; // ← เปลี่ยนรหัสครูตรงนี้ได้เลย
+// ===== CONFIG =====
+var SUPABASE_URL = 'https://fjuzaymqeboghltrsesa.supabase.co';
+var SUPABASE_ANON_KEY = 'eyJhbGciOiJIUzI1NiIsInR5cCI6IkpXVCJ9.eyJpc3MiOiJzdXBhYmFzZSIsInJlZiI6ImZqdXpheW1xZWJvZ2hsdHJzZXNhIiwicm9sZSI6ImFub24iLCJpYXQiOjE3ODI0NTQyNzEsImV4cCI6MjA5ODAzMDI3MX0.w6iTlnFhdEAOPPcToRB-KwENtdJaHEUxfP6awJsrB2I';
+var TEACHER_PASSWORD = 'teacher2567';
 
-const { createClient } = supabase;
-const sb = createClient(SUPABASE_URL, SUPABASE_KEY, {
-  db: { schema: 'public' },
-  auth: { persistSession: false, autoRefreshToken: false },
-  global: { headers: { 'apikey': SUPABASE_KEY, 'Authorization': 'Bearer ' + SUPABASE_KEY } }
-});
+// สร้าง Supabase client
+var sb = supabase.createClient(SUPABASE_URL, SUPABASE_ANON_KEY);
 
-// ===== ข้อมูลบทอ่าน =====
-const stories = [
+// ===== DATA =====
+var stories = [
   {id:1,title:'เรื่องของดำ',emoji:'🐕',level:1,text:'สุนัขของฉันชื่อดำ\nมันชอบวิ่งเล่นในสวน\nทุกวันเย็นฉันพาดำไปเดินเล่น\nดำเห็นแมวแล้ววิ่งไล่\nฉันหัวเราะเพราะดำซุกซน'},
   {id:2,title:'วันฝนตก',emoji:'🌧️',level:1,text:'วันนี้ฝนตกหนักมาก\nฉันหยิบร่มสีแดงออกไปโรงเรียน\nน้ำฝนไหลริน ตามถนน\nเพื่อนๆ วิ่งหนีฝนกันวุ่นวาย\nฉันจึงถือร่มมุ่งหมายเดินไปช่วยเพื่อน'},
   {id:3,title:'ข้าวเหนียวมะม่วง',emoji:'🥭',level:1,text:'แม่ซื้อมะม่วงสุก สีเหลืองสวย\nแม่นึ่งข้าวเหนียวให้หอมกรุ่น\nฉันราดกะทิข้นๆ ลงไป\nกินกับมะม่วง หวานอร่อยมาก\nนี่คืออาหารที่ฉันชอบที่สุด'},
@@ -241,53 +213,50 @@ const stories = [
 ];
 
 // ===== STATE =====
-let currentUser = null;
-let currentRole = 'student';
-let myRecordings = {};
-let allRecordings = [];
-let currentStory = null;
-let mediaRecorder = null;
-let audioChunks = [];
-let isRecording = false;
-let timerInt = null;
-let secs = 0;
-let currentFilter = 'all';
-let currentAudio = null;
+var currentUser = null;
+var currentRole = 'student';
+var myRecs = {};
+var allRecs = [];
+var currentStory = null;
+var mediaRecorder = null;
+var audioChunks = [];
+var isRecording = false;
+var timerInt = null;
+var secs = 0;
+var currentFilter = 'all';
+var currentAudio = null;
 
 // ===== LOGIN =====
 function setRole(r) {
   currentRole = r;
-  document.querySelectorAll('.login-tab').forEach((t,i) => t.classList.toggle('active', (i===0&&r==='student')||(i===1&&r==='teacher')));
-  document.getElementById('teacher-pass-wrap').style.display = r==='teacher' ? 'block' : 'none';
-  document.getElementById('login-btn').className = 'btn-login' + (r==='teacher' ? ' btn-teacher' : '');
-  document.getElementById('name-input').placeholder = r==='student' ? 'พิมพ์ชื่อของคุณ' : 'ชื่อครู';
+  document.getElementById('tab-student').classList.toggle('active', r === 'student');
+  document.getElementById('tab-teacher').classList.toggle('active', r === 'teacher');
+  document.getElementById('teacher-pass-wrap').style.display = r === 'teacher' ? 'block' : 'none';
+  document.getElementById('login-btn').className = 'btn-login' + (r === 'teacher' ? ' btn-teacher' : '');
 }
 
-async function doLogin() {
-  const name = document.getElementById('name-input').value.trim();
+function doLogin() {
+  var name = document.getElementById('name-input').value.trim();
   if (!name) { showToast('กรุณาพิมพ์ชื่อก่อนนะ'); return; }
   if (currentRole === 'teacher') {
-    const pass = document.getElementById('teacher-pass').value;
+    var pass = document.getElementById('teacher-pass').value;
     if (pass !== TEACHER_PASSWORD) { showToast('รหัสครูไม่ถูกต้อง'); return; }
   }
   currentUser = name;
   document.getElementById('login-screen').style.display = 'none';
   document.getElementById('app').style.display = 'block';
-  document.getElementById('user-pill').textContent = (currentRole==='teacher'?'👩‍🏫 ':'👤 ') + name;
+  document.getElementById('user-pill').textContent = (currentRole === 'teacher' ? '👩‍🏫 ' : '👤 ') + name;
   if (currentRole === 'teacher') {
     document.getElementById('student-view').style.display = 'none';
     document.getElementById('teacher-view').style.display = 'block';
-    await loadAllRecordings();
-    renderTeacherTable();
+    loadAllRecs();
   } else {
-    await loadMyRecordings();
-    renderGrid();
-    renderStats();
+    loadMyRecs();
   }
 }
 
 function logout() {
-  currentUser = null; myRecordings = {}; allRecordings = [];
+  currentUser = null; myRecs = {}; allRecs = [];
   document.getElementById('login-screen').style.display = 'flex';
   document.getElementById('app').style.display = 'none';
   document.getElementById('name-input').value = '';
@@ -297,58 +266,83 @@ function logout() {
   setRole('student');
 }
 
-// ===== SUPABASE DATA =====
-async function loadMyRecordings() {
-  const { data } = await sb.from('recordings').select('*').eq('student_name', currentUser);
-  myRecordings = {};
-  if (data) data.forEach(r => {
-    if (!myRecordings[r.story_id]) myRecordings[r.story_id] = [];
-    myRecordings[r.story_id].push(r);
-  });
+// ===== SUPABASE =====
+function loadMyRecs() {
+  sb.from('recordings').select('*').eq('student_name', currentUser)
+    .then(function(res) {
+      myRecs = {};
+      if (res.data) {
+        res.data.forEach(function(r) {
+          if (!myRecs[r.story_id]) myRecs[r.story_id] = [];
+          myRecs[r.story_id].push(r);
+        });
+      }
+      renderGrid();
+      renderStats();
+    });
 }
 
-async function loadAllRecordings() {
-  const { data } = await sb.from('recordings').select('*').order('created_at', {ascending:false});
-  allRecordings = data || [];
+function loadAllRecs() {
+  sb.from('recordings').select('*').order('created_at', {ascending: false})
+    .then(function(res) {
+      allRecs = res.data || [];
+      renderTeacher();
+    });
 }
 
-async function saveRecording(storyId, audioBlob, duration) {
+function saveRec(storyId, blob, dur) {
   document.getElementById('loading').style.display = 'flex';
-  try {
-    const filename = `student_${storyId}_${Date.now()}_${Math.random().toString(36).slice(2,7)}.webm`;
-    const { data: upData, error: upErr } = await sb.storage.from('audio-files').upload(filename, audioBlob, {contentType:'audio/webm'});
-    if (upErr) throw upErr;
-    const { data: urlData } = sb.storage.from('audio-files').getPublicUrl(filename);
-    const audioUrl = urlData.publicUrl;
-    const { data: rec, error: dbErr } = await sb.from('recordings').insert({
-      student_name: currentUser, story_id: storyId, audio_url: audioUrl, duration
-    }).select().single();
-    if (dbErr) throw dbErr;
-    if (!myRecordings[storyId]) myRecordings[storyId] = [];
-    myRecordings[storyId].push(rec);
-    showToast('บันทึกเสียงสำเร็จ! 🎉');
+  var fname = 'rec_' + storyId + '_' + Date.now() + '_' + Math.random().toString(36).slice(2,6) + '.webm';
+  sb.storage.from('audio-files').upload(fname, blob, {contentType: 'audio/webm'})
+    .then(function(upRes) {
+      if (upRes.error) {
+        document.getElementById('loading').style.display = 'none';
+        showToast('อัปโหลดไฟล์ไม่ได้: ' + upRes.error.message);
+        return;
+      }
+      var urlRes = sb.storage.from('audio-files').getPublicUrl(fname);
+      var audioUrl = urlRes.data.publicUrl;
+      return sb.from('recordings').insert({
+        student_name: currentUser,
+        story_id: storyId,
+        audio_url: audioUrl,
+        duration: dur
+      }).select().single();
+    })
+    .then(function(dbRes) {
+      document.getElementById('loading').style.display = 'none';
+      if (!dbRes) return;
+      if (dbRes.error) {
+        showToast('บันทึกข้อมูลไม่ได้: ' + dbRes.error.message);
+        return;
+      }
+      if (!myRecs[storyId]) myRecs[storyId] = [];
+      myRecs[storyId].push(dbRes.data);
+      showToast('บันทึกเสียงสำเร็จ! 🎉');
+      renderAttempts();
+      renderGrid();
+      renderStats();
+    })
+    .catch(function(e) {
+      document.getElementById('loading').style.display = 'none';
+      showToast('เกิดข้อผิดพลาด: ' + e.message);
+    });
+}
+
+function deleteRec(recId, storyId) {
+  sb.from('recordings').delete().eq('id', recId).then(function() {
+    myRecs[storyId] = myRecs[storyId].filter(function(r) { return r.id !== recId; });
+    if (!myRecs[storyId].length) delete myRecs[storyId];
     renderAttempts();
     renderGrid();
     renderStats();
-  } catch(e) {
-    showToast('เกิดข้อผิดพลาด: ' + e.message);
-  }
-  document.getElementById('loading').style.display = 'none';
-}
-
-async function deleteRecording(recId, storyId) {
-  await sb.from('recordings').delete().eq('id', recId);
-  myRecordings[storyId] = myRecordings[storyId].filter(r => r.id !== recId);
-  if (!myRecordings[storyId].length) delete myRecordings[storyId];
-  renderAttempts();
-  renderGrid();
-  renderStats();
+  });
 }
 
 // ===== RENDER =====
 function renderStats() {
-  const done = Object.keys(myRecordings).length;
-  const total = Object.values(myRecordings).reduce((a,b) => a+b.length, 0);
+  var done = Object.keys(myRecs).length;
+  var total = Object.values(myRecs).reduce(function(a,b) { return a + b.length; }, 0);
   document.getElementById('s-total').textContent = total;
   document.getElementById('s-done').textContent = done;
   document.getElementById('s-pct').textContent = Math.round(done/15*100) + '%';
@@ -356,61 +350,68 @@ function renderStats() {
   document.getElementById('p-text').textContent = done + ' / 15 บท';
 }
 
-function filter(f, el) {
+function doFilter(f, el) {
   currentFilter = f;
-  document.querySelectorAll('.chip').forEach(c => c.classList.remove('active'));
+  document.querySelectorAll('.chip').forEach(function(c) { c.classList.remove('active'); });
   el.classList.add('active');
   renderGrid();
 }
 
 function renderGrid() {
-  const g = document.getElementById('story-grid');
-  const filtered = stories.filter(s => {
+  var g = document.getElementById('story-grid');
+  var filtered = stories.filter(function(s) {
     if (currentFilter === 'all') return true;
-    if (currentFilter === 'done') return !!myRecordings[s.id];
+    if (currentFilter === 'done') return !!myRecs[s.id];
     return String(s.level) === currentFilter;
   });
-  g.innerHTML = filtered.map(s => {
-    const recs = myRecordings[s.id] || [];
-    const done = recs.length > 0;
-    return `<div class="card ${done?'done':''}" onclick="openStory(${s.id})">
-      ${done ? `<div class="card-badge">${recs.length} ครั้ง</div>` : ''}
-      <span class="card-emoji">${s.emoji}</span>
-      <div class="card-title">${s.title}</div>
-      <span class="level-badge l${s.level}">ระดับ ${s.level}</span>
-    </div>`;
+  g.innerHTML = filtered.map(function(s) {
+    var recs = myRecs[s.id] || [];
+    var done = recs.length > 0;
+    return '<div class="card ' + (done ? 'done' : '') + '" onclick="openStory(' + s.id + ')">' +
+      (done ? '<div class="card-badge">' + recs.length + ' ครั้ง</div>' : '') +
+      '<span class="card-emoji">' + s.emoji + '</span>' +
+      '<div class="card-title">' + s.title + '</div>' +
+      '<span class="level-badge l' + s.level + '">ระดับ ' + s.level + '</span>' +
+      '</div>';
   }).join('');
 }
 
-function renderTeacherTable() {
-  const names = [...new Set(allRecordings.map(r => r.student_name))].sort();
-  const head = document.getElementById('t-head');
-  const body = document.getElementById('t-body');
-  const storyNums = stories.map((_,i) => `<th>${i+1}</th>`).join('');
-  head.innerHTML = `<th>ชื่อ</th>${storyNums}<th>รวม</th>`;
-  body.innerHTML = names.map(n => {
-    const cells = stories.map(s => {
-      const count = allRecordings.filter(r => r.student_name===n && r.story_id===s.id).length;
-      if (!count) return `<td style="color:#ddd">—</td>`;
-      if (count >= 3) return `<td>✅</td>`;
-      return `<td style="color:#ff8c42;font-weight:600">${count}x</td>`;
+function renderTeacher() {
+  var names = [];
+  allRecs.forEach(function(r) {
+    if (names.indexOf(r.student_name) === -1) names.push(r.student_name);
+  });
+  names.sort();
+  var nums = stories.map(function(_,i) { return '<th>' + (i+1) + '</th>'; }).join('');
+  document.getElementById('t-head').innerHTML = '<th>ชื่อ</th>' + nums + '<th>รวม</th>';
+  document.getElementById('t-body').innerHTML = names.map(function(n) {
+    var cells = stories.map(function(s) {
+      var count = allRecs.filter(function(r) { return r.student_name === n && r.story_id === s.id; }).length;
+      if (!count) return '<td style="color:#ddd">—</td>';
+      if (count >= 3) return '<td>✅</td>';
+      return '<td style="color:#ff8c42;font-weight:600">' + count + 'x</td>';
     }).join('');
-    const total = stories.filter(s => allRecordings.some(r => r.student_name===n && r.story_id===s.id)).length;
-    const sc = total>=12?'score-g':total>=7?'score-y':'score-r';
-    return `<tr><td style="text-align:left;padding-left:8px;font-weight:500;white-space:nowrap">${n}</td>${cells}<td><span class="${sc}">${total}/15</span></td></tr>`;
-  }).join('') || `<tr><td colspan="17" style="padding:1rem;color:#bbb;text-align:center">ยังไม่มีข้อมูลนักเรียน</td></tr>`;
+    var total = stories.filter(function(s) {
+      return allRecs.some(function(r) { return r.student_name === n && r.story_id === s.id; });
+    }).length;
+    var sc = total >= 12 ? 'score-g' : total >= 7 ? 'score-y' : 'score-r';
+    return '<tr><td style="text-align:left;padding-left:8px;font-weight:500;white-space:nowrap">' + n + '</td>' + cells + '<td><span class="' + sc + '">' + total + '/15</span></td></tr>';
+  }).join('') || '<tr><td colspan="17" style="padding:1rem;color:#bbb;text-align:center">ยังไม่มีข้อมูล</td></tr>';
 }
 
 // ===== MODAL =====
 function openStory(id) {
-  currentStory = stories.find(s => s.id === id);
+  currentStory = null;
+  for (var i = 0; i < stories.length; i++) {
+    if (stories[i].id === id) { currentStory = stories[i]; break; }
+  }
   if (!currentStory) return;
   document.getElementById('m-emoji').textContent = currentStory.emoji;
   document.getElementById('m-title').textContent = currentStory.title;
-  const lc = ['','l1','l2','l3','l4'];
-  const ll = ['','⭐ ระดับ 1 — เริ่มต้น','⭐⭐ ระดับ 2 — กำลังพัฒนา','⭐⭐⭐ ระดับ 3 — ดี','⭐⭐⭐⭐ ระดับ 4 — เก่งมาก'];
-  document.getElementById('m-level').innerHTML = `<span class="level-badge ${lc[currentStory.level]}">${ll[currentStory.level]}</span>`;
-  document.getElementById('m-story').innerHTML = currentStory.text.split('\n').map(l=>`<p>${l}</p>`).join('');
+  var lc = ['','l1','l2','l3','l4'];
+  var ll = ['','⭐ ระดับ 1','⭐⭐ ระดับ 2','⭐⭐⭐ ระดับ 3','⭐⭐⭐⭐ ระดับ 4'];
+  document.getElementById('m-level').innerHTML = '<span class="level-badge ' + lc[currentStory.level] + '">' + ll[currentStory.level] + '</span>';
+  document.getElementById('m-story').innerHTML = currentStory.text.split('\n').map(function(l) { return '<p>' + l + '</p>'; }).join('');
   renderAttempts();
   document.getElementById('overlay').classList.add('open');
   document.body.style.overflow = 'hidden';
@@ -418,21 +419,25 @@ function openStory(id) {
 
 function renderAttempts() {
   if (!currentStory) return;
-  const recs = myRecordings[currentStory.id] || [];
-  const list = document.getElementById('attempts');
-  if (!recs.length) { list.innerHTML = `<div class="no-rec">ยังไม่มีการบันทึกเสียง</div>`; }
-  else {
-    list.innerHTML = recs.map((r, i) => {
-      const bars = Array.from({length:18},(_,j)=>`<div class="wbar" style="height:${4+Math.abs(Math.sin(j*0.8+i)*8)+Math.random()*6}px"></div>`).join('');
-      const d = new Date(r.created_at);
-      const date = `${d.getDate()}/${d.getMonth()+1}`;
-      return `<div class="attempt-row">
-        <span class="attempt-num">ครั้งที่ ${i+1}</span>
-        <button class="play-btn" onclick="playAudio('${r.audio_url}')">▶</button>
-        <div class="waveform">${bars}</div>
-        <span class="attempt-date">${date}</span>
-        <button class="del-btn" onclick="deleteRecording('${r.id}',${currentStory.id})">✕</button>
-      </div>`;
+  var recs = myRecs[currentStory.id] || [];
+  var list = document.getElementById('attempts');
+  if (!recs.length) {
+    list.innerHTML = '<div class="no-rec">ยังไม่มีการบันทึกเสียง</div>';
+  } else {
+    list.innerHTML = recs.map(function(r, i) {
+      var bars = '';
+      for (var j = 0; j < 18; j++) {
+        bars += '<div class="wbar" style="height:' + (4 + Math.abs(Math.sin(j*0.8+i)*8) + Math.random()*6) + 'px"></div>';
+      }
+      var d = new Date(r.created_at);
+      var date = d.getDate() + '/' + (d.getMonth()+1);
+      return '<div class="attempt-row">' +
+        '<span class="attempt-num">ครั้งที่ ' + (i+1) + '</span>' +
+        '<button class="play-btn" onclick="playAudio(\'' + r.audio_url + '\')">▶</button>' +
+        '<div class="waveform">' + bars + '</div>' +
+        '<span class="attempt-date">' + date + '</span>' +
+        '<button class="del-btn" onclick="deleteRec(\'' + r.id + '\',' + currentStory.id + ')">✕</button>' +
+        '</div>';
     }).join('');
   }
   document.getElementById('done-badge').style.display = recs.length ? 'flex' : 'none';
@@ -445,43 +450,46 @@ function closeModal() {
   currentStory = null;
 }
 
-function handleOverlay(e) { if (e.target === document.getElementById('overlay')) closeModal(); }
+function handleOverlay(e) {
+  if (e.target === document.getElementById('overlay')) closeModal();
+}
 
 function playAudio(url) {
   if (currentAudio) { currentAudio.pause(); currentAudio = null; }
   currentAudio = new Audio(url);
-  currentAudio.play().catch(()=>showToast('ไม่สามารถเล่นเสียงได้'));
+  currentAudio.play().catch(function() { showToast('ไม่สามารถเล่นเสียงได้'); });
 }
 
 // ===== RECORDING =====
-async function toggleRec() { isRecording ? stopRec() : await startRec(); }
+function toggleRec() {
+  if (isRecording) { stopRec(); } else { startRec(); }
+}
 
-async function startRec() {
-  try {
-    const stream = await navigator.mediaDevices.getUserMedia({audio:true});
-    mediaRecorder = new MediaRecorder(stream);
-    audioChunks = [];
-    mediaRecorder.ondataavailable = e => audioChunks.push(e.data);
-    mediaRecorder.onstop = async () => {
-      const blob = new Blob(audioChunks, {type:'audio/webm'});
-      stream.getTracks().forEach(t => t.stop());
-      await saveRecording(currentStory.id, blob, secs);
-    };
-    mediaRecorder.start();
-    isRecording = true; secs = 0;
-    timerInt = setInterval(() => {
-      secs++;
-      const m = String(Math.floor(secs/60)).padStart(2,'0');
-      const s = String(secs%60).padStart(2,'0');
-      document.getElementById('timer').textContent = m+':'+s;
-    }, 1000);
-    const btn = document.getElementById('rec-btn');
-    btn.className = 'record-btn recording';
-    document.getElementById('rec-icon').textContent = '⏹';
-    document.getElementById('rec-text').textContent = 'หยุดบันทึก';
-  } catch(e) {
-    showToast('กรุณาอนุญาตการใช้งานไมโครโฟน');
-  }
+function startRec() {
+  navigator.mediaDevices.getUserMedia({audio: true})
+    .then(function(stream) {
+      mediaRecorder = new MediaRecorder(stream);
+      audioChunks = [];
+      mediaRecorder.ondataavailable = function(e) { audioChunks.push(e.data); };
+      mediaRecorder.onstop = function() {
+        var blob = new Blob(audioChunks, {type: 'audio/webm'});
+        stream.getTracks().forEach(function(t) { t.stop(); });
+        saveRec(currentStory.id, blob, secs);
+      };
+      mediaRecorder.start();
+      isRecording = true;
+      secs = 0;
+      timerInt = setInterval(function() {
+        secs++;
+        var m = String(Math.floor(secs/60)).padStart(2,'0');
+        var s = String(secs%60).padStart(2,'0');
+        document.getElementById('timer').textContent = m + ':' + s;
+      }, 1000);
+      document.getElementById('rec-btn').className = 'record-btn recording';
+      document.getElementById('rec-icon').textContent = '⏹';
+      document.getElementById('rec-text').textContent = 'หยุดบันทึก';
+    })
+    .catch(function() { showToast('กรุณาอนุญาตการใช้งานไมโครโฟน'); });
 }
 
 function stopRec() {
@@ -490,17 +498,17 @@ function stopRec() {
     clearInterval(timerInt);
     isRecording = false;
     document.getElementById('timer').textContent = '';
-    const btn = document.getElementById('rec-btn');
-    btn.className = 'record-btn idle';
+    document.getElementById('rec-btn').className = 'record-btn idle';
     document.getElementById('rec-icon').textContent = '🎙️';
     document.getElementById('rec-text').textContent = 'บันทึกอีกครั้ง';
   }
 }
 
 function showToast(msg) {
-  const t = document.getElementById('toast');
-  t.textContent = msg; t.classList.add('show');
-  setTimeout(() => t.classList.remove('show'), 2500);
+  var t = document.getElementById('toast');
+  t.textContent = msg;
+  t.classList.add('show');
+  setTimeout(function() { t.classList.remove('show'); }, 3000);
 }
 </script>
 </body>
